@@ -1,4 +1,5 @@
 const Thought = require("../models/thought");
+const User = require("../models/user");
 
 module.exports = {
   // Get All Thoughts
@@ -32,6 +33,18 @@ module.exports = {
   async createThought(req, res) {
     try {
       const newThought = await Thought.create(req.body);
+      const user = await User.findOneAndUpdate(
+        { _id: req.body.userId },
+        { $addToSet: { thoughts: thoughts._id } },
+        { new: true }
+      );
+
+      if (!user) {
+        return res
+          .status(404)
+          .json({ message: "Post created, but found no user with that ID" });
+      }
+
       res.json(newThought);
     } catch (err) {
       res.status(500).json(err);
@@ -42,9 +55,9 @@ module.exports = {
   async updateThought(req, res) {
     try {
       const updatedThought = await Thought.findByIdAndUpdate(
-        req.params.thoughtId,
+        { _id: req.params.thoughtId },
         req.body,
-        { new: true, runValidators: true }
+        { new: true }
       );
 
       if (!updatedThought) {
@@ -66,6 +79,17 @@ module.exports = {
 
       if (!deletedThought) {
         return res.status(404).json({ message: "No user with that ID" });
+      }
+
+      // Remove the thought from the user's thought array
+      const user = await User.findOneAndUpdate(
+        { _id: deletedThought.thoughtId },
+        { $pull: { thoughts: deletedThought._id } },
+        { new: true }
+      );
+
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
       }
 
       res.json({ message: "User deleted successfully" });
