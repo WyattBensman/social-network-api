@@ -5,7 +5,7 @@ const reactionSchema = new Schema(
   {
     reactionId: {
       type: Schema.Types.ObjectId,
-      default: new mongoose.Types.ObjectId(),
+      default: Types.ObjectId,
     },
     reactionBody: {
       type: String,
@@ -28,4 +28,4 @@ const reactionSchema = new Schema(
   }
 );
 
-module.exports = reactionSchema;
+module.exports = Reaction;
