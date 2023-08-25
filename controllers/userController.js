@@ -36,6 +36,7 @@ module.exports = {
       const newUser = await User.create(req.body);
       res.json(newUser);
     } catch (err) {
+      console.log(err);
       res.status(500).json(err);
     }
   },
