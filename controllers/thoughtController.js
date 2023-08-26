@@ -34,10 +34,14 @@ module.exports = {
     try {
       const newThought = await Thought.create(req.body);
       const user = await User.findOneAndUpdate(
+        // Find user by their _id
         { _id: req.body.userId },
-        { $addToSet: { thoughts: thoughts._id } },
+        // Add the thought's ID to user's thoughts array
+        { $addToSet: { thoughts: newThought._id } },
         { new: true }
       );
+
+      console.log("Updated User:", user);
 
       if (!user) {
         return res
@@ -47,6 +51,7 @@ module.exports = {
 
       res.json(newThought);
     } catch (err) {
+      console.log(err);
       res.status(500).json(err);
     }
   },
@@ -78,12 +83,16 @@ module.exports = {
       );
 
       if (!deletedThought) {
-        return res.status(404).json({ message: "No user with that ID" });
+        return res.status(404).json({ message: "No thought with that ID" });
       }
 
-      // Remove the thought from the user's thought array
+      console.log("Deleted thought:", deletedThought);
+
+      // Find the user who owns the thought
       const user = await User.findOneAndUpdate(
-        { _id: deletedThought.thoughtId },
+        // Find user by _id
+        req.params.userId,
+        // Remove thought from user's thoughts array
         { $pull: { thoughts: deletedThought._id } },
         { new: true }
       );
@@ -92,7 +101,7 @@ module.exports = {
         return res.status(404).json({ message: "User not found" });
       }
 
-      res.json({ message: "User deleted successfully" });
+      res.json({ message: "User Thought deleted successfully" });
     } catch (err) {
       res.status(500).json(err);
     }

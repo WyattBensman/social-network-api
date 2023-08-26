@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const Thought = require("../models/thought");
 
 module.exports = {
   // Get All Users
@@ -16,9 +17,7 @@ module.exports = {
     try {
       const user = await User.findOne({
         _id: req.params.userId,
-      })
-        .select("-__v")
-        .populate("posts");
+      }).select("-__v");
 
       if (!user) {
         return res.status(404).json({ message: "No user with that ID" });
@@ -74,6 +73,7 @@ module.exports = {
 
       res.json({ message: "User deleted successfully" });
     } catch (err) {
+      console.log(err);
       res.status(500).json(err);
     }
   },
